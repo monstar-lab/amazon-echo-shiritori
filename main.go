@@ -7,6 +7,7 @@ import (
 
 	"./alexa"
 	"./db"
+	"./timeData"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
@@ -76,7 +77,7 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 
 	cardTitle := " しりとりインテント"
 	speechOutput := res
-	repromptText := res
+	repromptText := res + timeData.GetNowTimeFormat()
 	shouldEndSession := true
 
 	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession)), nil
