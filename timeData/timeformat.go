@@ -6,10 +6,6 @@ import (
 )
 
 func GetNowTimeFormat() string {
-	// timeNow := time.Now()
-	// const layout = "2006-01-02 15:04:05"
-	// fmt.Println("timeNow: " + timeNow.Format(layout))
-	//日付フォーマット指定
 	const layout = "2006-01-02 15:04:05"
 
 	now := time.Now()
