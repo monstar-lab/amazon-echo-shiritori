@@ -49,26 +49,30 @@ func OnIntent(intentRequest alexa.RequestDetail) (alexa.Response, error) {
 }
 
 func getShiritoriWord(value string) (alexa.Response, error) {
+
 	//ユーザー返答した単語を取得
 	value = strings.TrimSpace(value)
-
 	//文字列を分割して、末尾文字を取得
 	arr := strings.Split(value, "")
 	lastCharacter := arr[len(arr)-1]
-
 	//始まり文字を取得
 	firstCharacter := arr[0]
 
-	//ユーザに返すレスポンス初期値を設定
+	//各変数の初期値を設定する
+	//ユーザに返すレスポンス
 	res := ""
+	//エラーメッセージ
+	errMes := ""
+	//ユーザーに返答するメッセージ
+	speechOutput := ""
 
 	//末尾チェック
 	if function.CheckN(lastCharacter) {
 		//末尾が「ん」
-		res = LOSS_N_MESSAGE
+		errMes = LOSS_N_MESSAGE
 	} else if function.CheckEndOfTheWordIsWrong(firstCharacter, lastWord) == true {
-		//語尾が違う
-		res = WRONG_END_WORD
+		//末尾が違う
+		errMes = WRONG_END_WORD
 	} else {
 		//データベースに登録
 		db.PutWord(value, 1)
@@ -80,14 +84,18 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 		lastWord = res
 		//ユーザーに単語をお知らせ
 		if res == "" {
-			res = "負けました。"
+			errMes = LOSS_GAME
 		}
-
 		log.Print(value + ": check")
-
 	}
+
+	//ユーザーに返すレスポンス設定
 	cardTitle := " しりとりインテント"
-	speechOutput := res
+	if errMes != "" {
+		speechOutput = errMes
+	} else {
+		speechOutput = value + ANSWER_MSG + res
+	}
 	repromptText := res
 	shouldEndSession := true
 
