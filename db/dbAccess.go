@@ -80,59 +80,31 @@ func PutWord(word string, flag int) {
 
 }
 
-// func Insert() {
-
-// 	table := db.Table("history")
-
-// 	history := dataStructure.History{HistoryID: 1, Time: timeData.GetNowTimeFormat(), Flag: 3}
-// 	//u := User{User_ID: "lambda test"}
-// 	fmt.Println(history)
-
-// 	if err := table.Put(history).Run(); err != nil {
-// 		fmt.Println("err")
-// 		panic(err.Error())
-// 	}
-// }
-// func checkWord(value string, keyword string) bool {
-// 	//文字列の先頭部分は末尾文字と一致しているかどうか
-// 	//fmt.Println(strings.HasPrefix("ナツ", "ツナミ"))
-// 	fmt.Println(strings.HasPrefix(value, keyword))
-// 	return strings.HasPrefix(value, keyword)
-// }
-
-// type WordDB struct {
-// 	WordID int    `json:"word_id" dynamodbav:"word_id"`
-// 	Word   string `json:"word" dynamodbav:"word"`
-// }
-
-// type Words struct {
-// 	WordID int    `json:"word_id"`
-// 	Word   string `json:"word"`
-// }
-
-// func resWord(output *dynamodb.ScanOutput, keyword string) string {
-// 	// DBから取得したデータのJSONの形を変換
-// 	words := make([]*WordDB, 0)
-// 	unMarshaListOfMapErr := dynamodbattribute.UnmarshalListOfMaps(output.Items, &words)
-// 	if unMarshaListOfMapErr != nil {
-// 		panic(fmt.Sprintf("failed to unmarshal Dynamodb Scan Items, %v", unMarshaListOfMapErr))
+/* データベース上に登録されたMax IDを取得
+* Scanは1MBのデータしか取得できない
+* 解決する必要がる
+* LastEvaluatedKeyを利用
+ */
+// func GetMaxID() {
+// 	sess, err := session.NewSession()
+// 	if err != nil {
+// 		panic(err)
 // 	}
 
-// 	bytes, _ := json.Marshal(words)
+// 	db := dynamodb.New(sess, &aws.Config{
+// 		Credentials: credentials.NewStaticCredentials(ACCESS_KET_ID, SECRET_ACCESS_KEY, ""),
+// 		Region:      aws.String("ap-northeast-1"), // "ap-northeast-1"等
+// 	})
 
-// 	//変換されたデータ形をパースし、取得
-// 	var data []Words
-// 	unMarshaErr := json.Unmarshal(bytes, &data)
-// 	if unMarshaErr != nil {
-// 		fmt.Println("error:", unMarshaErr)
+// 	getParams := &dynamodb.ScanInput{
+// 		TableName: aws.String("word"),
+// 		Select:    aws.String("COUNT"),
+// 	}
+// 	getItem, getErr := db.Scan(getParams)
+// 	if getErr != nil {
+// 		fmt.Println(getErr)
+// 		return
 // 	}
 
-// 	for _, word := range data {
-// 		fmt.Printf("word_id: %v, word: %v\n", word.WordID, word.Word)
-// 		isWord := checkWord(word.Word, keyword)
-// 		if isWord == true {
-// 			return word.Word
-// 		}
-// 	}
-// 	return ""
+// 	fmt.Println(string(getItem.Count))
 // }

@@ -63,6 +63,7 @@ func CheckN(str string) bool {
 	return false
 }
 
+//末尾文字の違いチェック
 func CheckEndOfTheWordIsWrong(firstCharacter string, lastCharacter string) bool {
 	if lastCharacter != "" {
 		arr := strings.Split(lastCharacter, "")
