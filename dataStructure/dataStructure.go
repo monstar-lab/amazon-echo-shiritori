@@ -7,7 +7,7 @@ type Word struct {
 }
 
 type History struct {
-	HistoryID int    `dynamo:"history_id"`
+	HistoryID string `dynamo:"history_id"`
 	Time      string `dynamo:"time"`
 	Flag      int    `dynamo:"flag"`
 }
