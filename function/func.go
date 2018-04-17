@@ -2,22 +2,18 @@ package function
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"strings"
 
+	"../constant"
 	"../dataStructure"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-func test() {
-
-}
-
-// func ResCount(output *dynamodb.ScanOutput) {
-// 	count
-
-// }
 //ユーザ返答単語を返す
 func ResWord(output *dynamodb.ScanOutput, keyword string) string {
 	// DBから取得したデータのJSONの形を変換
@@ -80,4 +76,35 @@ func CheckEndOfTheWordIsWrong(firstCharacter string, lastCharacter string) bool 
 		return false
 	}
 
+}
+
+//APIからひらがなのデータを取得
+func GetAPIData(word string) string {
+	//APIアクセスURL
+	url := constant.URL + "?appid=" + constant.API_ACCESS_ID + "&sentence=" + word
+	data := httpGet(url)
+
+	//データセット
+	result := dataStructure.ResultSet{}
+	err := xml.Unmarshal([]byte(data), &result)
+	furigana := ""
+	if err != nil {
+		fmt.Println("error: %v", err)
+		return furigana
+	}
+
+	for _, word := range result.Result.WordList.Word {
+		furigana += word.Furigana
+		fmt.Println(word.Furigana)
+		fmt.Println(furigana)
+	}
+	return furigana
+}
+
+//APIと通信
+func httpGet(url string) string {
+	response, _ := http.Get(url)
+	body, _ := ioutil.ReadAll(response.Body)
+	defer response.Body.Close()
+	return string(body)
 }
