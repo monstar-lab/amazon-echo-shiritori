@@ -1,4 +1,4 @@
-package main
+package constant
 
 const GAME_START_MESSAGE = "しりとりスキルへようこそ、ではしりとりゲームを開始します。"
 const LOSS_N_MESSAGE = "語尾がんで終わったので、私の勝ちです。"
