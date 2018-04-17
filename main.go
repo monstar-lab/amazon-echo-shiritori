@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"./alexa"
+	"./constant"
 	"./db"
 	"./function"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -29,8 +30,8 @@ func GetWelcomeResponse() alexa.Response {
 	//ユーザー最後返答する単語を格納する変数を初期値に戻す
 	lastWord = ""
 	cardTitle := " しりとり"
-	speechOutput := GAME_START_MESSAGE
-	repromptText := GAME_START_MESSAGE
+	speechOutput := constant.GAME_START_MESSAGE
+	repromptText := constant.GAME_START_MESSAGE
 	shouldEndSession := true
 	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
 }
@@ -69,10 +70,10 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 	//末尾チェック
 	if function.CheckN(lastCharacter) {
 		//末尾が「ん」
-		errMes = LOSS_N_MESSAGE
+		errMes = constant.LOSS_N_MESSAGE
 	} else if function.CheckEndOfTheWordIsWrong(firstCharacter, lastWord) == true {
 		//末尾が違う
-		errMes = WRONG_END_WORD
+		errMes = constant.WRONG_END_WORD
 	} else {
 		//データベースに登録
 		db.PutWord(value, 1)
@@ -84,7 +85,7 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 		lastWord = res
 		//ユーザーに単語をお知らせ
 		if res == "" {
-			errMes = LOSS_GAME
+			errMes = constant.LOSS_GAME
 		}
 		log.Print(value + ": check")
 	}
@@ -94,7 +95,7 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 	if errMes != "" {
 		speechOutput = errMes
 	} else {
-		speechOutput = value + ANSWER_MSG + res
+		speechOutput = value + constant.ANSWER_MSG + res
 	}
 	repromptText := res
 	shouldEndSession := true
