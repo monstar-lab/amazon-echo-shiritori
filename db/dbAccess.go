@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"../constant"
 	"../dataStructure"
 	"../function"
 	"../timeData"
@@ -69,7 +70,7 @@ func PutWord(word string, flag int) {
 
 	table := db.Table("history")
 
-	history := dataStructure.History{HistoryID: 1, Time: timeData.GetNowTimeFormat(), Flag: flag}
+	history := dataStructure.History{HistoryID: timeData.GetNowTimeFormat(constant.DB_ID_FORMAT), Time: timeData.GetNowTimeFormat(constant.DB_INSERT_TIME_FORMAT), Flag: flag}
 	//u := User{User_ID: "lambda test"}
 	fmt.Println(history)
 
