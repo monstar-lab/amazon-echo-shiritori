@@ -50,8 +50,9 @@ func OnIntent(intentRequest alexa.RequestDetail) (alexa.Response, error) {
 }
 
 func getShiritoriWord(value string) (alexa.Response, error) {
-
-	//ユーザー返答した単語を取得
+	//ユーザー返答した単語をAPIと通信、ひらがなの取得
+	value = function.GetAPIData(value)
+	//空白文字を削除
 	value = strings.TrimSpace(value)
 	//文字列を分割して、末尾文字を取得
 	arr := strings.Split(value, "")
