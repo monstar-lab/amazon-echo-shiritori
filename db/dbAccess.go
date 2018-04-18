@@ -18,7 +18,7 @@ import (
 //DBから単語を取得
 func GetWordData(keyword string) string {
 	log.Print(keyword)
-	cred := credentials.NewStaticCredentials(ACCESS_KET_ID, SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
+	cred := credentials.NewStaticCredentials(ACCESS_KEY_ID, SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
 
 	db := dynamodb.New(session.New(), &aws.Config{
 		Credentials: cred,
@@ -49,7 +49,7 @@ func GetWordData(keyword string) string {
 }
 
 func PutGameInfo(flag int) string {
-	cred := credentials.NewStaticCredentials(ACCESS_KET_ID, SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
+	cred := credentials.NewStaticCredentials(ACCESS_KEY_ID, SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
 
 	db := dynamo.New(session.New(), &aws.Config{
 		Credentials: cred,
@@ -75,7 +75,7 @@ func PutGameInfo(flag int) string {
 //単語をデータベースに登録
 func PutWord(word string, historyID string, answerer string, flag int) {
 	log.Println("db -> " + word)
-	cred := credentials.NewStaticCredentials(ACCESS_KET_ID, SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
+	cred := credentials.NewStaticCredentials(ACCESS_KEY_ID, SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
 
 	db := dynamo.New(session.New(), &aws.Config{
 		Credentials: cred,
@@ -102,7 +102,7 @@ func UpdateItem(flag int, historyID string) {
 	}
 
 	db := dynamodb.New(sess, &aws.Config{
-		Credentials: credentials.NewStaticCredentials(ACCESS_KET_ID, SECRET_ACCESS_KEY, ""),
+		Credentials: credentials.NewStaticCredentials(ACCESS_KEY_ID, SECRET_ACCESS_KEY, ""),
 		Region:      aws.String("ap-northeast-1"), // "ap-northeast-1"等
 	})
 	input := &dynamodb.UpdateItemInput{
@@ -142,7 +142,7 @@ func UpdateItem(flag int, historyID string) {
 // 	}
 
 // 	db := dynamodb.New(sess, &aws.Config{
-// 		Credentials: credentials.NewStaticCredentials(ACCESS_KET_ID, SECRET_ACCESS_KEY, ""),
+// 		Credentials: credentials.NewStaticCredentials(ACCESS_KEY_ID, SECRET_ACCESS_KEY, ""),
 // 		Region:      aws.String("ap-northeast-1"), // "ap-northeast-1"等
 // 	})
 
