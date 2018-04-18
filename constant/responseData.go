@@ -9,3 +9,14 @@ const API_ACCESS_ID = "dj00aiZpPVJ3M0dHRjdLRDM2biZzPWNvbnN1bWVyc2VjcmV0Jng9MTU-"
 const URL = "http://jlp.yahooapis.jp/FuriganaService/V1/furigana"
 const DB_INSERT_TIME_FORMAT = "2006-01-02 15:04:05"
 const DB_ID_FORMAT = "20060102150405"
+
+const FIRST_GAME_FLAG = 0
+const AFTER_GAME_FLAG = 1
+const STOP_GAME_FLAG = 2
+const END_GAME_FLAG = 3
+
+const ANSWERER_ECHO = "echo"
+const ANSWERER_USER = "user"
+
+const LAST_ANSWERER = 1
+const NOT_LAST_ANSWERER = -1
