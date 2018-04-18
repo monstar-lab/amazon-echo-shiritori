@@ -13,11 +13,12 @@ type History struct {
 }
 
 type HistoryDetail struct {
-	HistoryDetailID int    `dynamo:"history_detail_id"`
-	HistoryID       int    `dynamo:"history_id"`
+	HistoryDetailID string `dynamo:"history_detail_id"`
+	HistoryID       string `dynamo:"history_id"`
 	Time            string `dynamo:"time"`
-	Answerer        string `dynamo:"Answerer"`
-	answer          string `dynamo:"answer"`
+	Answerer        string `dynamo:"answerer"`
+	Answer          string `dynamo:"answer"`
+	Flag            int    `dynamo:"flag"`
 }
 
 type WordDB struct {
