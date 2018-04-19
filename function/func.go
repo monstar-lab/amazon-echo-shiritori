@@ -114,6 +114,5 @@ func httpGet(url string) string {
 //ランダムにword_idを出す
 func RandWordID() int {
 	rand.Seed(time.Now().UnixNano())
-	//fmt.Println()
-	return rand.Intn(10426)
+	return rand.Intn(15197)
 }
