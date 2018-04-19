@@ -74,7 +74,9 @@ func getWord(url string) []string {
 	}
 	doc.Find(".pages > .linkClound > li > a").Each(func(i int, s *goquery.Selection) {
 		word := s.Text()
-		words = append(words, word)
+		if !strings.HasSuffix(word, "ん") {
+			words = append(words, word)
+		}
 	})
 	return words
 }
