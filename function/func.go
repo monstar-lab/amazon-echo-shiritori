@@ -5,8 +5,10 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"strings"
+	"time"
 
 	"../constant"
 	"../dataStructure"
@@ -107,4 +109,11 @@ func httpGet(url string) string {
 	body, _ := ioutil.ReadAll(response.Body)
 	defer response.Body.Close()
 	return string(body)
+}
+
+//ランダムにword_idを出す
+func RandWordID() int {
+	rand.Seed(time.Now().UnixNano())
+	//fmt.Println()
+	return rand.Intn(10426)
 }
