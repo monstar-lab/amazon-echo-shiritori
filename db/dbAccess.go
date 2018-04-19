@@ -29,12 +29,15 @@ func GetWordData(keyword string) string {
 		TableName: aws.String("word"),
 
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":wordID": {
+				N: aws.String("1"),
+			},
 			":word": { // :を付けるのがセオリーのようです
 				S: aws.String(keyword),
 			},
 		},
-
-		FilterExpression: aws.String("contains(word, :word)"),
+		// word_id が 1以上と「keyword」から始まりの単語
+		FilterExpression: aws.String("word_id >= :wordID and begins_with(word, :word)"),
 	}
 
 	getItem, getErr := db.Scan(getParams)
