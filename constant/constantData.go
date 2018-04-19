@@ -7,6 +7,11 @@ const LOSS_GAME = "負けました。"
 const ANSWER_MSG = "ですね、じゃ"
 const API_ACCESS_ID = "dj00aiZpPVJ3M0dHRjdLRDM2biZzPWNvbnN1bWVyc2VjcmV0Jng9MTU-"
 const URL = "http://jlp.yahooapis.jp/FuriganaService/V1/furigana"
+
+//DBに使うデータ定義
+const ACCESS_KEY_ID = "AKIAJZOEOAYI7AKKQ7AQ"
+const SECRET_ACCESS_KEY = "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"
+
 const DB_INSERT_TIME_FORMAT = "2006-01-02 15:04:05"
 const DB_ID_FORMAT = "20060102150405"
 

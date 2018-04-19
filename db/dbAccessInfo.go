@@ -1,4 +1,0 @@
-package db
-
-const ACCESS_KEY_ID = "AKIAJZOEOAYI7AKKQ7AQ"
-const SECRET_ACCESS_KEY = "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"
