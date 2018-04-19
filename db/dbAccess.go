@@ -22,7 +22,7 @@ func GetWordData(keyword string) string {
 
 	db := dynamodb.New(session.New(), &aws.Config{
 		Credentials: cred,
-		Region:      aws.String("ap-northeast-1"), // "ap-northeast-1"等
+		Region:      aws.String(constant.REGION), // constant.REGION等
 	})
 
 	getParams := &dynamodb.ScanInput{
@@ -53,7 +53,7 @@ func PutGameInfo(flag int) string {
 
 	db := dynamo.New(session.New(), &aws.Config{
 		Credentials: cred,
-		Region:      aws.String("ap-northeast-1"), // "ap-northeast-1"等
+		Region:      aws.String(constant.REGION), // constant.REGION等
 	})
 
 	table := db.Table("history")
@@ -79,7 +79,7 @@ func PutWord(word string, historyID string, answerer string, flag int) {
 
 	db := dynamo.New(session.New(), &aws.Config{
 		Credentials: cred,
-		Region:      aws.String("ap-northeast-1"), // "ap-northeast-1"等
+		Region:      aws.String(constant.REGION), // constant.REGION等
 	})
 
 	table := db.Table("history_detail")
@@ -103,7 +103,7 @@ func UpdateItem(flag int, historyID string) {
 
 	db := dynamodb.New(sess, &aws.Config{
 		Credentials: credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, ""),
-		Region:      aws.String("ap-northeast-1"), // "ap-northeast-1"等
+		Region:      aws.String(constant.REGION), // constant.REGION等
 	})
 	input := &dynamodb.UpdateItemInput{
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
@@ -134,7 +134,7 @@ func GetGameStartWord(wordID int) string {
 	cred := credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
 	db := dynamo.New(session.New(), &aws.Config{
 		Credentials: cred,
-		Region:      aws.String("ap-northeast-1"), // "ap-northeast-1"等
+		Region:      aws.String(constant.REGION), // constant.REGION等
 	})
 	table := db.Table("word")
 	result := []dataStructure.Word{}
@@ -158,7 +158,7 @@ func GetGameStartWord(wordID int) string {
 
 // 	db := dynamodb.New(sess, &aws.Config{
 // 		Credentials: credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, ""),
-// 		Region:      aws.String("ap-northeast-1"), // "ap-northeast-1"等
+// 		Region:      aws.String(constant.REGION), // constant.REGION等
 // 	})
 
 // 	getParams := &dynamodb.ScanInput{
