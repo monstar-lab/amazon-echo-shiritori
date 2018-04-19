@@ -27,14 +27,22 @@ func OnLaunch(launchRequest alexa.RequestDetail) (alexa.Response, error) {
 	return GetWelcomeResponse(), nil
 }
 
+//ゲーム開始時のスタート単語を取得
+func GetWelcomeStartWord() string {
+	return db.GetGameStartWord(function.RandWordID())
+}
+
 // GetWelcomeResponse is function-type
 func GetWelcomeResponse() alexa.Response {
 
+	//スタート単語取得
+	startWord := GetWelcomeStartWord()
+	//ゲーム最新単語の更新
+	lastWord = startWord
 	//ユーザー最後返答する単語を格納する変数を初期値に戻す
-	lastWord = ""
 	historyID = ""
 	cardTitle := " しりとり"
-	speechOutput := constant.GAME_START_MESSAGE
+	speechOutput := constant.GAME_START_MESSAGE + startWord
 	repromptText := constant.GAME_START_MESSAGE
 	shouldEndSession := true
 	//DBにゲーム開始情報登録
