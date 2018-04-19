@@ -3,7 +3,7 @@ package getWordList
 import (
 	"fmt"
 
-	"../db"
+	"../constant"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -23,7 +23,7 @@ type WordDB struct {
 }
 
 func putWord(arr []string) {
-	cred := credentials.NewStaticCredentials(db.ACCESS_KEY_ID, db.SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
+	cred := credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
 	db := dynamo.New(session.New(), &aws.Config{
 		Credentials: cred,
 		Region:      aws.String("ap-northeast-1"), // "ap-northeast-1"等
