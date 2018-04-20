@@ -115,7 +115,7 @@ func httpGet(url string) string {
 //ランダムにword_idを出す
 func RandWordID() int {
 	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(15197)
+	return rand.Intn(11655)
 }
 
 var hirakanaList = map[rune]string{
