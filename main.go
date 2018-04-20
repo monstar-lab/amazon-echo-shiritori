@@ -87,11 +87,11 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 	value = function.GetAPIData(value)
 	//空白文字を削除
 	value = strings.TrimSpace(value)
-	//文字列を分割して、末尾文字を取得
-	arr := strings.Split(value, "")
-	lastCharacter := arr[len(arr)-1]
+	//末尾文字を取得
+	lastCharacter := function.ResLastCharacter(value)
+
 	//始まり文字を取得
-	firstCharacter := arr[0]
+	firstCharacter := string([]rune(value)[:1])
 
 	//各変数の初期値を設定する
 	//ユーザに返すレスポンス
