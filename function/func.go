@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"../constant"
 	"../dataStructure"
@@ -115,4 +116,44 @@ func httpGet(url string) string {
 func RandWordID() int {
 	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(15197)
+}
+
+var hirakanaList = map[rune]string{
+	'ぁ': "あ",
+	'ぃ': "い",
+	'ぅ': "う",
+	'ぇ': "え",
+	'ぉ': "お",
+	'っ': "つ",
+	'ゃ': "や",
+	'ゅ': "ゆ",
+	'ょ': "よ",
+	'ゎ': "わ",
+}
+
+func HiraToZenHira(value string) string {
+	res := value
+	for i, v := range hirakanaList {
+		if string(i) == value {
+			res = v
+		}
+	}
+	return res
+}
+
+//末尾文字を返す
+func IsLongVowel(value string) string {
+	runes := []rune(value)
+	strlen := utf8.RuneCountInString(value)
+	if string(runes[strlen-1:strlen]) == "ー" {
+		return string(runes[strlen-2 : strlen-1])
+	}
+	return string(runes[strlen-1 : strlen])
+}
+
+//返答単語を渡す
+func ResLastCharacter(value string) string {
+	lastCharacter := IsLongVowel(value)
+	lastCharacter = HiraToZenHira(lastCharacter)
+	return lastCharacter
 }
