@@ -157,3 +157,10 @@ func ResLastCharacter(value string) string {
 	lastCharacter = HiraToZenHira(lastCharacter)
 	return lastCharacter
 }
+
+func IsExistWord(count int) bool {
+	if count >= 1 {
+		return true
+	}
+	return false
+}

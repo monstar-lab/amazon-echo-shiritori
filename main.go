@@ -108,6 +108,9 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 	} else if function.CheckEndOfTheWordIsWrong(firstCharacter, lastWord) == true {
 		//末尾が違う
 		errMes = constant.WRONG_END_WORD
+	} else if function.IsExistWord(db.SearchWordCount(historyID, value)) {
+		//ユーザー返答単語が重複しているかどうか
+		errMes = constant.IS_EXIST_WORD
 	} else {
 		db.PutWord(value, historyID, constant.ANSWERER_USER, constant.NOT_LAST_ANSWERER)
 		// db.PutGameInfo(1)

@@ -148,6 +148,38 @@ func GetGameStartWord(wordID int) string {
 	return result[0].Word
 }
 
+func SearchWordCount(historyID string, word string) int {
+	cred := credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
+
+	db := dynamodb.New(session.New(), &aws.Config{
+		Credentials: cred,
+		Region:      aws.String(constant.REGION), // constant.REGION等
+	})
+
+	getParams := &dynamodb.ScanInput{
+		TableName: aws.String("history_detail"),
+
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":historyID": {
+				S: aws.String(historyID),
+			},
+			":answer": { // :を付けるのがセオリーのようです
+				S: aws.String(word),
+			},
+		},
+		// word_id が 1以上と「keyword」から始まりの単語
+		FilterExpression: aws.String("history_id = :historyID and answer = :answer"),
+	}
+
+	getItem, getErr := db.Scan(getParams)
+
+	if getErr != nil {
+		panic(getErr)
+	}
+
+	return len(getItem.Items)
+}
+
 /* データベース上に登録されたMax IDを取得
 * Scanは1MBのデータしか取得できない
 * 解決する必要がる
