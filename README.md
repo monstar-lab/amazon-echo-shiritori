@@ -37,5 +37,5 @@
 
 	- 重複してないword listを返す
   
-- バグ
-	- しりとりゲーム開始の時、時々問題が発生する
+- バグ  
+	[しりとりゲーム開始時バグ詳細](https://github.com/monstar-lab/amazon-echo-shiritori/issues/2)
