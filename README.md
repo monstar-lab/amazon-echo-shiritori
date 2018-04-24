@@ -3,7 +3,7 @@
 - [要件定義](https://github.com/monstar-lab/amazon-echo-shiritori/wiki/%E8%A6%81%E4%BB%B6%E5%AE%9A%E7%BE%A9)
 
 - 進捗  　
-  ![進捗](https://user-images.githubusercontent.com/38127805/39118075-65fe473c-4723-11e8-9c2d-509d4f72e93b.png)
+  ![進捗](https://user-images.githubusercontent.com/38127805/39162741-fc5ec182-47b1-11e8-8b56-b9f94407f462.png)
 
 - テスト仕様書  
   [テスト仕様書](https://github.com/monstar-lab/amazon-echo-shiritori/wiki/images/test.png)
