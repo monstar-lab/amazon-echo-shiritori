@@ -7,6 +7,7 @@
 
 - テスト仕様書  
   [テスト仕様書](https://github.com/monstar-lab/amazon-echo-shiritori/wiki/images/test.png)
+
 - 手順
 	- Alexaのスキル名を呼びゲーム開始  
       「しりとりゲーム」
