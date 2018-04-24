@@ -24,7 +24,12 @@
 
 	- 終了  
 	 「しりとりゲーム終了」
-	   		  
+
+- オプション
+	- スクレイピング
+	  しりとりサイトをスクレイピングして、単語を取得しDBに登録
+	  [ソースコード](https://github.com/monstar-lab/amazon-echo-shiritori/tree/inprocess/getWordList)
+
 - 今困っているところ
 	- DynamoDB Scan
 	  全件取得については、制限がある
