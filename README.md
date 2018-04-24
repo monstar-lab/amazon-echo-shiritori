@@ -6,7 +6,7 @@
   ![進捗](https://user-images.githubusercontent.com/38127805/39118075-65fe473c-4723-11e8-9c2d-509d4f72e93b.png)
 
 - 手順
-	- Alexaのスキル名を呼びゲーム開始  
+	- Alexaのスキル名を呼びゲーム開始  
       「しりとりゲーム」
     
 	- しりとりする仕方  
