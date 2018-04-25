@@ -29,7 +29,16 @@ func OnLaunch(launchRequest alexa.RequestDetail) (alexa.Response, error) {
 
 //ゲーム開始時のスタート単語を取得
 func GetWelcomeStartWord() string {
-	return db.GetGameStartWord(function.RandWordID())
+	//time.Sleep(300 * time.Millisecond)
+	stringChan := make(chan string)
+	go func() {
+		res := db.GetGameStartWord(function.RandWordID())
+		log.Println(res)
+		stringChan <- res
+	}()
+
+	log.Println(stringChan)
+	return <-stringChan
 }
 
 // GetWelcomeResponse is function-type
@@ -160,8 +169,4 @@ func Handler(event alexa.Request) (alexa.Response, error) {
 func main() {
 
 	lambda.Start(Handler)
-}
-
-func test() {
-
 }
