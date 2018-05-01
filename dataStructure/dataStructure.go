@@ -6,28 +6,28 @@ type Word struct {
 	Word   string `dynamo:"word"`
 }
 
-type History struct {
-	HistoryID string `dynamo:"history_id"`
-	Time      string `dynamo:"time"`
-	Flag      int    `dynamo:"flag"`
-}
+// type History struct {
+// 	HistoryID string `dynamo:"history_id"`
+// 	Time      string `dynamo:"time"`
+// 	Flag      int    `dynamo:"flag"`
+// }
 
 type HistoryDetail struct {
-	HistoryDetailID string `dynamo:"history_detail_id"`
-	HistoryID       string `dynamo:"history_id"`
-	Time            string `dynamo:"time"`
-	Answerer        string `dynamo:"answerer"`
-	Answer          string `dynamo:"answer"`
-	Flag            int    `dynamo:"flag"`
+	//	HistoryDetailID string `dynamo:"history_detail_id"`
+	HistoryID string `dynamo:"history_id"`
+	//	Time      string `dynamo:"time"`
+	//	Answerer  string `dynamo:"answerer"`
+	Answer string `dynamo:"answer"`
+	Flag   int    `dynamo:"flag"`
 }
 
 type WordDB struct {
-	WordID int    `json:"word_id" dynamodbav:"word_id"`
+	WordID string `json:"word_id" dynamodbav:"word_id"`
 	Word   string `json:"word" dynamodbav:"word"`
 }
 
 type Words struct {
-	WordID int    `json:"word_id"`
+	WordID string `json:"word_id"`
 	Word   string `json:"word"`
 }
 
