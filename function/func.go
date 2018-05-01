@@ -158,9 +158,23 @@ func ResLastCharacter(value string) string {
 	return lastCharacter
 }
 
-func IsExistWord(count int) bool {
-	if count >= 1 {
-		return true
+func IsExistWord(word string, useWord string) bool {
+	//DBから取得きた単語を配列に変換
+	oneRes := strings.Split(word, ";")
+	for i := 0; i < len(oneRes)-1; i++ {
+		oneWord := strings.Split(oneRes[i], ",")
+
+		//重複してるかどうかチェック
+		for j := 0; j < len(oneWord)-1; j++ {
+			if useWord == oneWord[j] {
+				return true
+			}
+		}
 	}
 	return false
+}
+
+//history_detail_v2のanswerに格納するデータフォーマットを整理する
+func MakeDBAnswer(useAnswer string, newAnswer string, answerer string) string {
+	return useAnswer + newAnswer + "," + answerer + ";"
 }
