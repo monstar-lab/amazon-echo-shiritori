@@ -81,14 +81,16 @@ func OnIntent(intentRequest alexa.RequestDetail) (alexa.Response, error) {
 func putGameInfo(intent string) {
 	//ゲーム開始第一回目フラグは0に登録
 	if historyID == "" && intent == "LaunchRequest" {
-		historyID = db.PutGameInfo(constant.FIRST_GAME_FLAG)
+		answer := lastWord + ",echo;"
+		historyID = db.PutHistoryDetailData(answer, constant.FIRST_GAME_FLAG)
 	} else {
 		//ゲーム開始第二回目以後フラグは1に変更
 		if historyID != "" {
-			db.UpdateItem(constant.AFTER_GAME_FLAG, historyID)
+			db.UpdateHistoryFlag(constant.AFTER_GAME_FLAG, historyID)
 		} else {
-			lastWord = ""
-			historyID = db.PutGameInfo(constant.FIRST_GAME_FLAG)
+			//スキルを起動せずに しりとりゲーム開始した場合
+			// lastWord = ""
+			// historyID = db.PutHistoryDetailData(constant.FIRST_GAME_FLAG)
 		}
 	}
 }
@@ -114,6 +116,9 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 	//ユーザーに返答するメッセージ
 	speechOutput := ""
 
+	//今まで返答した単語
+	useWord := db.GetHistoryWord(historyID)
+
 	//末尾チェック
 	if function.CheckN(lastCharacter) {
 		//末尾が「ん」
@@ -121,24 +126,28 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 	} else if function.CheckEndOfTheWordIsWrong(firstCharacter, lastWord) == true {
 		//末尾が違う
 		errMes = constant.WRONG_END_WORD
-	} else if function.IsExistWord(db.SearchWordCount(historyID, value)) {
+	} else if function.IsExistWord(useWord, value) {
 		//ユーザー返答単語が重複しているかどうか
 		errMes = constant.IS_EXIST_WORD
 	} else {
-		db.PutWord(value, historyID, constant.ANSWERER_USER, constant.NOT_LAST_ANSWERER)
+		useWord = function.MakeDBAnswer(useWord, value, constant.ANSWERER_USER)
+		fmt.Println("ユーザーの単語が問題ない " + useWord)
+		db.UpdateHistoryDetailAnswer(useWord, historyID)
 		// db.PutGameInfo(1)
 		log.Print(lastCharacter)
 		log.Print(firstCharacter)
 		//末尾文字を取得後データベースに参照、単語を取得して
-		res = db.GetWordData(lastCharacter)
+		res = db.ResNotUesWord(db.GetHistoryWord(historyID), db.GetDBWordList(lastCharacter))
 		//最後に返答した単語を値保持
 		lastWord = res
 		//ユーザーに結果をお知らせ
 		if res == "" {
 			errMes = constant.LOSS_GAME
-			db.UpdateItem(constant.END_GAME_FLAG, historyID)
+			db.UpdateHistoryFlag(constant.END_GAME_FLAG, historyID)
 		} else {
-			db.PutWord(res, historyID, constant.ANSWERER_ECHO, constant.LAST_ANSWERER)
+			useWord = function.MakeDBAnswer(useWord, res, constant.ANSWERER_ECHO)
+			fmt.Println("echoが返答した単語　 " + useWord)
+			db.UpdateHistoryDetailAnswer(useWord, historyID)
 		}
 		log.Print(value + ": check")
 	}
