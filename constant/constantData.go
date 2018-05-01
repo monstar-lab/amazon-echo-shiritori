@@ -10,6 +10,10 @@ const API_ACCESS_ID = "dj00aiZpPVJ3M0dHRjdLRDM2biZzPWNvbnN1bWVyc2VjcmV0Jng9MTU-"
 const URL = "http://jlp.yahooapis.jp/FuriganaService/V1/furigana"
 
 //DBに使うデータ定義
+const DB_WORD = "word_v2"
+const DB_USE_WORD_HISTORY = "history_detail_v2"
+
+//DBにアクセスするさいに必要なキーなど
 const ACCESS_KEY_ID = "AKIAJZOEOAYI7AKKQ7AQ"
 const SECRET_ACCESS_KEY = "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"
 const REGION = "ap-northeast-1"
