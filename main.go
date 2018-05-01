@@ -2,8 +2,12 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
+	"strconv"
 	"strings"
+	"sync"
+	"time"
 
 	"./alexa"
 	"./constant"
@@ -53,7 +57,7 @@ func GetWelcomeResponse() alexa.Response {
 	cardTitle := " しりとり"
 	speechOutput := constant.GAME_START_MESSAGE + startWord
 	repromptText := constant.GAME_START_MESSAGE
-	shouldEndSession := true
+	shouldEndSession := false
 	//DBにゲーム開始情報登録
 	putGameInfo("LaunchRequest")
 	//db.PutWord(value, 0)
@@ -147,7 +151,75 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 		speechOutput = value + constant.ANSWER_MSG + res
 	}
 	repromptText := res
-	shouldEndSession := true
+	shouldEndSession := false
+	// go test()
+
+	var cd CountDown = CountDown{10, "残りは", "負け"}
+	aKun := make(chan *CountDown)
+	bSan := make(chan *CountDown)
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		for {
+			cd, ok := <-aKun // aKunから読み込み(書き込みを待つ)
+			if !ok {
+				break
+			}
+			time.Sleep(time.Second)
+			// fmt.Printf("　A君「%d！！！」\n", cd.Count)
+			cd.Count-- // データの書き換え
+			if cd.Count == 0 {
+				break
+			}
+			if cd.Count > 5 {
+				fmt.Printf("　A君「%d！！！」\n", cd.Count)
+			}
+			bSan <- cd // bSanへ書き込み
+			//}
+
+		}
+		close(bSan)
+	}()
+
+	go func() {
+		defer wg.Done()
+		speechOutput := ""
+		for {
+			cd, ok := <-bSan // bSanから読み込み(書き込みを待つ)
+			if !ok {
+				break
+			}
+			//			time.Sleep(time.Second)
+			if cd.Count <= 5 {
+
+				//ユーザーに返すレスポンス設定
+				cardTitle := " しりとりインテント"
+
+				speechOutput = "残りあとは" + strconv.Itoa(cd.Count) + "秒"
+				repromptText := "残りあとは" + strconv.Itoa(cd.Count) + "秒"
+				shouldEndSession := true
+				alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
+
+				fmt.Printf("Bさん「%d！！！」\n", cd.Count)
+				//cd.Count-- // データの書き換え
+
+			}
+			if cd.Count == 0 {
+				break
+			}
+
+			aKun <- cd // aKunへ書き込み
+		}
+		close(aKun)
+	}()
+
+	aKun <- &cd // 最初の書き込み
+	wg.Wait()   // 終了を待つ
+	time.Sleep(time.Second)
+	fmt.Printf("A君・Bさん「「%s！！！」」\n", cd.LostWord)
 
 	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession)), nil
 }
@@ -169,4 +241,14 @@ func Handler(event alexa.Request) (alexa.Response, error) {
 func main() {
 
 	lambda.Start(Handler)
+}
+
+type CountDown struct {
+	Count    int
+	countMes string
+	LostWord string
+}
+
+func test() {
+
 }
