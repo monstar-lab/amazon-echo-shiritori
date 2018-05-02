@@ -67,7 +67,7 @@ func GetWelcomeResponse() alexa.Response {
 //OnIntent is function-type
 func OnIntent(intentRequest alexa.RequestDetail) (alexa.Response, error) {
 	log.Print(intentRequest.Intent)
-	log.Print(intentRequest.Intent.Slots)
+	log.Print(intentRequest.Intent.Name)
 
 	if intentRequest.Intent.Name == "ShiritoriIntent" {
 
@@ -151,16 +151,17 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 		}
 		log.Print(value + ": check")
 	}
-
+	shouldEndSession := false
 	//ユーザーに返すレスポンス設定
 	cardTitle := " しりとりインテント"
 	if errMes != "" {
 		speechOutput = errMes
+		shouldEndSession = true
 	} else {
 		speechOutput = value + constant.ANSWER_MSG + res
 	}
 	repromptText := res
-	shouldEndSession := false
+
 	// go test()
 
 	var cd CountDown = CountDown{10, "残りは", "負け"}
@@ -233,15 +234,35 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession)), nil
 }
 
+//ゲームを終了
+func onCancelIntent() (alexa.Response, error) {
+	return Cancel(), nil
+}
+
+func Cancel() alexa.Response {
+	cardTitle := " しりとり"
+	speechOutput := constant.GAME_STOP_MEESAGE
+	repromptText := constant.GAME_STOP_MEESAGE
+	shouldEndSession := true
+	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
+}
+
 func Handler(event alexa.Request) (alexa.Response, error) {
 
 	eventRequestType := event.Request.Type
+
 	// if event.Session.New {
 	// 	return OnSessionStarted(map[string]string{"requestId": event.Request.RequestID}, event.Session)
 	// } else
 	if eventRequestType == "LaunchRequest" {
 		return OnLaunch(event.Request)
 	} else if eventRequestType == "IntentRequest" {
+		intentName := event.Request.Intent.Name
+		if intentName == "AMAZON.StopIntent" {
+			//return onStopIntent()
+		} else if intentName == "AMAZON.CancelIntent" {
+			return onCancelIntent()
+		}
 		return OnIntent(event.Request)
 	}
 	return alexa.Response{}, ErrInvalidIntent
