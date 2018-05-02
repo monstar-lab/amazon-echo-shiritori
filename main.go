@@ -4,10 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"strconv"
 	"strings"
-	"sync"
-	"time"
 
 	"./alexa"
 	"./constant"
@@ -118,14 +115,16 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 
 	//今まで返答した単語
 	useWord := db.GetHistoryWord(historyID)
-
+	shouldEndSession := false
 	//末尾チェック
 	if function.CheckN(lastCharacter) {
 		//末尾が「ん」
 		errMes = constant.LOSS_N_MESSAGE
-	} else if function.CheckEndOfTheWordIsWrong(firstCharacter, lastWord) == true {
+		db.DeleteHistory(historyID)
+		shouldEndSession = true
+	} else if function.CheckEndOfTheWordIsWrong(firstCharacter, function.ResLastCharacter(lastWord)) == true {
 		//末尾が違う
-		errMes = constant.WRONG_END_WORD
+		errMes = constant.WRONG_END_WORD + "古い返答した単語は" + lastWord + "。最新返答した単語は" + firstCharacter
 	} else if function.IsExistWord(useWord, value) {
 		//ユーザー返答単語が重複しているかどうか
 		errMes = constant.IS_EXIST_WORD
@@ -143,7 +142,9 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 		//ユーザーに結果をお知らせ
 		if res == "" {
 			errMes = constant.LOSS_GAME
-			db.UpdateHistoryFlag(constant.END_GAME_FLAG, historyID)
+			db.DeleteHistory(historyID)
+			shouldEndSession = true
+			//db.UpdateHistoryFlag(constant.END_GAME_FLAG, historyID)
 		} else {
 			useWord = function.MakeDBAnswer(useWord, res, constant.ANSWERER_ECHO)
 			fmt.Println("echoが返答した単語　 " + useWord)
@@ -151,12 +152,11 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 		}
 		log.Print(value + ": check")
 	}
-	shouldEndSession := false
+
 	//ユーザーに返すレスポンス設定
 	cardTitle := " しりとりインテント"
 	if errMes != "" {
 		speechOutput = errMes
-		shouldEndSession = true
 	} else {
 		speechOutput = value + constant.ANSWER_MSG + res
 	}
@@ -164,72 +164,72 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 
 	// go test()
 
-	var cd CountDown = CountDown{10, "残りは", "負け"}
-	aKun := make(chan *CountDown)
-	bSan := make(chan *CountDown)
+	// var cd CountDown = CountDown{10, "残りは", "負け"}
+	// aKun := make(chan *CountDown)
+	// bSan := make(chan *CountDown)
 
-	var wg sync.WaitGroup
-	wg.Add(2)
+	// var wg sync.WaitGroup
+	// wg.Add(2)
 
-	go func() {
-		defer wg.Done()
-		for {
-			cd, ok := <-aKun // aKunから読み込み(書き込みを待つ)
-			if !ok {
-				break
-			}
-			time.Sleep(time.Second)
-			// fmt.Printf("　A君「%d！！！」\n", cd.Count)
-			cd.Count-- // データの書き換え
-			if cd.Count == 0 {
-				break
-			}
-			if cd.Count > 5 {
-				fmt.Printf("　A君「%d！！！」\n", cd.Count)
-			}
-			bSan <- cd // bSanへ書き込み
-			//}
+	// go func() {
+	// 	defer wg.Done()
+	// 	for {
+	// 		cd, ok := <-aKun // aKunから読み込み(書き込みを待つ)
+	// 		if !ok {
+	// 			break
+	// 		}
+	// 		time.Sleep(time.Second)
+	// 		// fmt.Printf("　A君「%d！！！」\n", cd.Count)
+	// 		cd.Count-- // データの書き換え
+	// 		if cd.Count == 0 {
+	// 			break
+	// 		}
+	// 		if cd.Count > 5 {
+	// 			fmt.Printf("　A君「%d！！！」\n", cd.Count)
+	// 		}
+	// 		bSan <- cd // bSanへ書き込み
+	// 		//}
 
-		}
-		close(bSan)
-	}()
+	// 	}
+	// 	close(bSan)
+	// }()
 
-	go func() {
-		defer wg.Done()
-		speechOutput := ""
-		for {
-			cd, ok := <-bSan // bSanから読み込み(書き込みを待つ)
-			if !ok {
-				break
-			}
-			//			time.Sleep(time.Second)
-			if cd.Count <= 5 {
+	// go func() {
+	// 	defer wg.Done()
+	// 	speechOutput := ""
+	// 	for {
+	// 		cd, ok := <-bSan // bSanから読み込み(書き込みを待つ)
+	// 		if !ok {
+	// 			break
+	// 		}
+	// 		//			time.Sleep(time.Second)
+	// 		if cd.Count <= 5 {
 
-				//ユーザーに返すレスポンス設定
-				cardTitle := " しりとりインテント"
+	// 			//ユーザーに返すレスポンス設定
+	// 			cardTitle := " しりとりインテント"
 
-				speechOutput = "残りあとは" + strconv.Itoa(cd.Count) + "秒"
-				repromptText := "残りあとは" + strconv.Itoa(cd.Count) + "秒"
-				shouldEndSession := true
-				alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
+	// 			speechOutput = "残りあとは" + strconv.Itoa(cd.Count) + "秒"
+	// 			repromptText := "残りあとは" + strconv.Itoa(cd.Count) + "秒"
+	// 			shouldEndSession := true
+	// 			alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
 
-				fmt.Printf("Bさん「%d！！！」\n", cd.Count)
-				//cd.Count-- // データの書き換え
+	// 			fmt.Printf("Bさん「%d！！！」\n", cd.Count)
+	// 			//cd.Count-- // データの書き換え
 
-			}
-			if cd.Count == 0 {
-				break
-			}
+	// 		}
+	// 		if cd.Count == 0 {
+	// 			break
+	// 		}
 
-			aKun <- cd // aKunへ書き込み
-		}
-		close(aKun)
-	}()
+	// 		aKun <- cd // aKunへ書き込み
+	// 	}
+	// 	close(aKun)
+	// }()
 
-	aKun <- &cd // 最初の書き込み
-	wg.Wait()   // 終了を待つ
-	time.Sleep(time.Second)
-	fmt.Printf("A君・Bさん「「%s！！！」」\n", cd.LostWord)
+	// aKun <- &cd // 最初の書き込み
+	// wg.Wait()   // 終了を待つ
+	// time.Sleep(time.Second)
+	// fmt.Printf("A君・Bさん「「%s！！！」」\n", cd.LostWord)
 
 	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession)), nil
 }
@@ -244,6 +244,8 @@ func Cancel() alexa.Response {
 	speechOutput := constant.GAME_STOP_MEESAGE
 	repromptText := constant.GAME_STOP_MEESAGE
 	shouldEndSession := true
+	db.DeleteHistory(historyID)
+	historyID = ""
 	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
 }
 
