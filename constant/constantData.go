@@ -1,6 +1,7 @@
 package constant
 
-const GAME_START_MESSAGE = "しりとりスキルへようこそ、ではしりとりゲームを開始します。単語を上げますね。"
+const GAME_START_MESSAGE = "しりとりスキルへようこそ、ではゲーム開始。"
+const GAME_STOP_MEESAGE = "しりとりゲームスキルを終了します。"
 const LOSS_N_MESSAGE = "語尾がんで終わったので、私の勝ちです。"
 const WRONG_END_WORD = "語尾が違います、新しい単語をあげてください。"
 const IS_EXIST_WORD = "単語すでに使われていたので、新しい単語をあげてください"
