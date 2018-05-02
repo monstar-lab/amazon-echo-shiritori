@@ -238,3 +238,35 @@ func GetGameStartWord(wordID int) string {
 	}
 	return result[0].Word
 }
+
+func DeleteHistory(historyID string) {
+	sess, err := session.NewSession()
+	if err != nil {
+		panic(err)
+	}
+
+	db := dynamodb.New(sess, &aws.Config{
+		Credentials: credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, ""),
+		Region:      aws.String(constant.REGION), // constant.REGION等
+	})
+
+	params := &dynamodb.DeleteItemInput{
+		TableName: aws.String(constant.DB_USE_WORD_HISTORY), // テーブル名
+
+		Key: map[string]*dynamodb.AttributeValue{
+			"history_id": { // キー名
+				S: aws.String(historyID), // 削除するキーの値
+			},
+		},
+		// //返ってくるデータの種類
+		// ReturnConsumedCapacity:      aws.String("NONE"),
+		// ReturnItemCollectionMetrics: aws.String("NONE"),
+		// ReturnValues:                aws.String("NONE"),
+	}
+
+	_, err = db.DeleteItem(params)
+	//fmt.Println(res)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+}
