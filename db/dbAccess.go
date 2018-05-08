@@ -83,7 +83,7 @@ func GetHistoryWord(historyDetailID string) string {
 	})
 
 	getParams := &dynamodb.GetItemInput{
-		TableName: aws.String("history_detail_v2"),
+		TableName: aws.String(constant.DB_USE_WORD_HISTORY),
 
 		Key: map[string]*dynamodb.AttributeValue{
 			"history_id": {
@@ -135,7 +135,7 @@ func delete_strings(slice []string, s string) []string {
 }
 
 //新規ゲーム登録
-func PutHistoryDetailData(answer string, flag int) string {
+func PutHistoryDetailData(answer string) string {
 	cred := credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
 
 	db := dynamo.New(session.New(), &aws.Config{
@@ -147,48 +147,13 @@ func PutHistoryDetailData(answer string, flag int) string {
 	//history idを作成
 	historyID := timeData.GetNowTimeFormat(constant.DB_ID_FORMAT)
 
-	history := dataStructure.HistoryDetail{HistoryID: historyID, Answer: answer, Flag: flag}
+	history := dataStructure.HistoryDetail{HistoryID: historyID, Answer: answer}
 
 	if err := table.Put(history).Run(); err != nil {
 		fmt.Println("err")
 		panic(err.Error())
 	}
 	return historyID
-}
-
-//history_detail_v2 テーブルのフラグ変更
-func UpdateHistoryFlag(flag int, historyID string) {
-	sess, err := session.NewSession()
-	if err != nil {
-		panic(err)
-	}
-
-	db := dynamodb.New(sess, &aws.Config{
-		Credentials: credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, ""),
-		Region:      aws.String(constant.REGION), // constant.REGION等
-	})
-	input := &dynamodb.UpdateItemInput{
-		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-			":flag": {
-				N: aws.String(fmt.Sprintf("%v", flag)),
-			},
-		},
-		TableName: aws.String(constant.DB_USE_WORD_HISTORY),
-		Key: map[string]*dynamodb.AttributeValue{
-			"history_id": {
-				S: aws.String(historyID),
-			},
-		},
-		ReturnValues:     aws.String("UPDATED_NEW"),
-		UpdateExpression: aws.String("set flag = :flag"),
-	}
-
-	_, err = db.UpdateItem(input)
-
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
 }
 
 //history_detail_v2 のanswerを変更
@@ -258,10 +223,6 @@ func DeleteHistory(historyID string) {
 				S: aws.String(historyID), // 削除するキーの値
 			},
 		},
-		// //返ってくるデータの種類
-		// ReturnConsumedCapacity:      aws.String("NONE"),
-		// ReturnItemCollectionMetrics: aws.String("NONE"),
-		// ReturnValues:                aws.String("NONE"),
 	}
 
 	_, err = db.DeleteItem(params)
