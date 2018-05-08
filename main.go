@@ -139,7 +139,7 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 		shouldEndSession = true
 	} else if function.CheckEndOfTheWordIsWrong(firstCharacter, function.ResLastCharacter(lastWord)) == true {
 		//末尾が違う
-		errMes = constant.WRONG_END_WORD + "echo返答した単語は" + lastWord + "。最新返答した単語は" + value
+		errMes = constant.WRONG_END_MES + function.ResLastCharacter(lastWord) + constant.WRONG_END_WORD_MES
 	} else if function.IsExistWord(useWord, value) {
 		//ユーザー返答単語が重複しているかどうか
 		errMes = constant.IS_EXIST_WORD
