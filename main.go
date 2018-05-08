@@ -56,8 +56,8 @@ func GetWelcomeResponse() alexa.Response {
 	repromptText := constant.GAME_START_MESSAGE
 	shouldEndSession := false
 	//DBにゲーム開始情報登録
-	putGameInfo("LaunchRequest")
-	//db.PutWord(value, 0)
+	answer := lastWord + ",echo;"
+	historyID = db.PutHistoryDetailData(answer)
 	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
 }
 
@@ -69,32 +69,47 @@ func OnIntent(intentRequest alexa.RequestDetail) (alexa.Response, error) {
 	if intentRequest.Intent.Name == "ShiritoriIntent" {
 
 		log.Print(intentRequest.Intent.Slots["shiritoriword"].Value)
+		if intentRequest.Intent.Slots["shiritoriword"].Value == "" {
+			return ResNotValue(), nil
+		}
 		return getShiritoriWord(intentRequest.Intent.Slots["shiritoriword"].Value)
+
 	}
 	return GetWelcomeResponse(), nil
 }
 
-//ゲーム開始情報登録
-func putGameInfo(intent string) {
-	//ゲーム開始第一回目フラグは0に登録
-	if historyID == "" && intent == "LaunchRequest" {
-		answer := lastWord + ",echo;"
-		historyID = db.PutHistoryDetailData(answer, constant.FIRST_GAME_FLAG)
-	} else {
-		//ゲーム開始第二回目以後フラグは1に変更
-		if historyID != "" {
-			db.UpdateHistoryFlag(constant.AFTER_GAME_FLAG, historyID)
-		} else {
-			//スキルを起動せずに しりとりゲーム開始した場合
-			// lastWord = ""
-			// historyID = db.PutHistoryDetailData(constant.FIRST_GAME_FLAG)
-		}
-	}
+func ResNotValue() alexa.Response {
+	cardTitle := " しりとり"
+	speechOutput := constant.NOT_FOUND_VALUE
+	repromptText := constant.NOT_FOUND_VALUE
+	shouldEndSession := false
+
+	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
+
 }
 
+// //ゲーム開始情報登録
+// func putGameInfo(intent string) {
+// 	//ゲーム開始第一回目フラグは0に登録
+// 	if historyID == "" && intent == "LaunchRequest" {
+// 		answer := lastWord + ",echo;"
+// 		historyID = db.PutHistoryDetailData(answer, constant.FIRST_GAME_FLAG)
+// 	} else {
+// 		//ゲーム開始第二回目以後フラグは1に変更
+// 		if historyID != "" {
+// 			//db.UpdateHistoryFlag(constant.AFTER_GAME_FLAG, historyID)
+// 		} else {
+// 			//スキルを起動せずに しりとりゲーム開始した場合
+// 			// lastWord = ""
+// 			// historyID = db.PutHistoryDetailData(constant.FIRST_GAME_FLAG)
+// 		}
+// 	}
+// }
+
 func getShiritoriWord(value string) (alexa.Response, error) {
-	//DBにゲーム開始情報登録
-	putGameInfo("ShiritoriIntent")
+	// //DBにゲーム開始情報登録
+	// putGameInfo("ShiritoriIntent")
+
 	//ユーザー返答した単語をAPIと通信、ひらがなの取得
 	value = function.GetAPIData(value)
 	//空白文字を削除
@@ -124,7 +139,7 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 		shouldEndSession = true
 	} else if function.CheckEndOfTheWordIsWrong(firstCharacter, function.ResLastCharacter(lastWord)) == true {
 		//末尾が違う
-		errMes = constant.WRONG_END_WORD + "古い返答した単語は" + lastWord + "。最新返答した単語は" + firstCharacter
+		errMes = constant.WRONG_END_WORD + "echo返答した単語は" + lastWord + "。最新返答した単語は" + value
 	} else if function.IsExistWord(useWord, value) {
 		//ユーザー返答単語が重複しているかどうか
 		errMes = constant.IS_EXIST_WORD
@@ -132,7 +147,7 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 		useWord = function.MakeDBAnswer(useWord, value, constant.ANSWERER_USER)
 		fmt.Println("ユーザーの単語が問題ない " + useWord)
 		db.UpdateHistoryDetailAnswer(useWord, historyID)
-		// db.PutGameInfo(1)
+
 		log.Print(lastCharacter)
 		log.Print(firstCharacter)
 		//末尾文字を取得後データベースに参照、単語を取得して
@@ -154,84 +169,29 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 	}
 
 	//ユーザーに返すレスポンス設定
-	cardTitle := " しりとりインテント"
+	cardTitle := " shiritoriIntent"
 	if errMes != "" {
 		speechOutput = errMes
 	} else {
 		speechOutput = value + constant.ANSWER_MSG + res
 	}
 	repromptText := res
-
-	// go test()
-
-	// var cd CountDown = CountDown{10, "残りは", "負け"}
-	// aKun := make(chan *CountDown)
-	// bSan := make(chan *CountDown)
-
-	// var wg sync.WaitGroup
-	// wg.Add(2)
-
-	// go func() {
-	// 	defer wg.Done()
-	// 	for {
-	// 		cd, ok := <-aKun // aKunから読み込み(書き込みを待つ)
-	// 		if !ok {
-	// 			break
-	// 		}
-	// 		time.Sleep(time.Second)
-	// 		// fmt.Printf("　A君「%d！！！」\n", cd.Count)
-	// 		cd.Count-- // データの書き換え
-	// 		if cd.Count == 0 {
-	// 			break
-	// 		}
-	// 		if cd.Count > 5 {
-	// 			fmt.Printf("　A君「%d！！！」\n", cd.Count)
-	// 		}
-	// 		bSan <- cd // bSanへ書き込み
-	// 		//}
-
-	// 	}
-	// 	close(bSan)
-	// }()
-
-	// go func() {
-	// 	defer wg.Done()
-	// 	speechOutput := ""
-	// 	for {
-	// 		cd, ok := <-bSan // bSanから読み込み(書き込みを待つ)
-	// 		if !ok {
-	// 			break
-	// 		}
-	// 		//			time.Sleep(time.Second)
-	// 		if cd.Count <= 5 {
-
-	// 			//ユーザーに返すレスポンス設定
-	// 			cardTitle := " しりとりインテント"
-
-	// 			speechOutput = "残りあとは" + strconv.Itoa(cd.Count) + "秒"
-	// 			repromptText := "残りあとは" + strconv.Itoa(cd.Count) + "秒"
-	// 			shouldEndSession := true
-	// 			alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
-
-	// 			fmt.Printf("Bさん「%d！！！」\n", cd.Count)
-	// 			//cd.Count-- // データの書き換え
-
-	// 		}
-	// 		if cd.Count == 0 {
-	// 			break
-	// 		}
-
-	// 		aKun <- cd // aKunへ書き込み
-	// 	}
-	// 	close(aKun)
-	// }()
-
-	// aKun <- &cd // 最初の書き込み
-	// wg.Wait()   // 終了を待つ
-	// time.Sleep(time.Second)
-	// fmt.Printf("A君・Bさん「「%s！！！」」\n", cd.LostWord)
-
 	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession)), nil
+}
+
+//ゲームを中止
+func onStopIntent() (alexa.Response, error) {
+	return Stop(), nil
+}
+
+func Stop() alexa.Response {
+	cardTitle := " stop"
+	speechOutput := constant.GAME_STOP_MEESAGE
+	repromptText := constant.GAME_STOP_MEESAGE
+	shouldEndSession := false
+	//db.UpdateHistoryFlag(constant.STOP_GAME_FLAG, historyID)
+	//historyID = ""
+	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
 }
 
 //ゲームを終了
@@ -240,8 +200,8 @@ func onCancelIntent() (alexa.Response, error) {
 }
 
 func Cancel() alexa.Response {
-	cardTitle := " しりとり"
-	speechOutput := constant.GAME_STOP_MEESAGE
+	cardTitle := " cancel"
+	speechOutput := constant.GAME_CANCEL_MEESAGE
 	repromptText := constant.GAME_STOP_MEESAGE
 	shouldEndSession := true
 	db.DeleteHistory(historyID)
@@ -249,21 +209,45 @@ func Cancel() alexa.Response {
 	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
 }
 
+// func OnSessionStarted() (alexa.Response, error) {
+// 	cardTitle := " sessionstarted"
+// 	speechOutput := "ある" + historyID + lastWord
+// 	repromptText := "ある" + historyID + lastWord
+// 	shouldEndSession := false
+// 	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession)), nil
+// }
+
+func onResumeIntent() (alexa.Response, error) {
+	cardTitle := "resume"
+	speechOutput := constant.GAME_RESUME_MEESAGE + lastWord
+	repromptText := constant.GAME_RESUME_MEESAGE + lastWord
+	shouldEndSession := false
+	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession)), nil
+}
+
 func Handler(event alexa.Request) (alexa.Response, error) {
 
 	eventRequestType := event.Request.Type
 
-	// if event.Session.New {
-	// 	return OnSessionStarted(map[string]string{"requestId": event.Request.RequestID}, event.Session)
+	// if eventRequestType == "SessionEndedRequest" {
+	// 	return Test()
 	// } else
 	if eventRequestType == "LaunchRequest" {
+		// if !event.Session.New {
+		// 	return OnSessionStarted()
+		// }
 		return OnLaunch(event.Request)
 	} else if eventRequestType == "IntentRequest" {
 		intentName := event.Request.Intent.Name
 		if intentName == "AMAZON.StopIntent" {
-			//return onStopIntent()
+			return onStopIntent()
 		} else if intentName == "AMAZON.CancelIntent" {
 			return onCancelIntent()
+		} else if intentName == "resumeIntent" {
+			return onResumeIntent()
+		} else if intentName == "newstartIntent" {
+			db.DeleteHistory(historyID)
+			return OnLaunch(event.Request)
 		}
 		return OnIntent(event.Request)
 	}
@@ -275,12 +259,20 @@ func main() {
 	lambda.Start(Handler)
 }
 
-type CountDown struct {
-	Count    int
-	countMes string
-	LostWord string
-}
+// type CountDown struct {
+// 	Count    int
+// 	countMes string
+// 	LostWord string
+// }
 
-func test() {
+func Test() (alexa.Response, error) {
+	cardTitle := " SessionEndedRequest"
+	speechOutput := "SessionEndedRequest" + historyID + lastWord
+	repromptText := "SessionEndedRequest" + historyID + lastWord
+	shouldEndSession := false
 
+	//historyIDとlastwordが存在していた場合
+	//
+	//dbにアクセス 2
+	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession)), nil
 }
