@@ -196,9 +196,7 @@ func GetResumeData() []string {
 		fmt.Println(word)
 		getData <- word
 	}()
-
 	resumeWord := <-getData
-
 	return []string{id, resumeWord}
 }
 
@@ -223,6 +221,12 @@ func ResumeIntent(word string) alexa.Response {
 }
 
 func Handler(event alexa.Request) (alexa.Response, error) {
+	if !event.Session.New {
+		oldGameID := db.GetFlagData(constant.FIRST_GAME_FLAG)
+		for _, id := range oldGameID {
+			db.DeleteHistory(id)
+		}
+	}
 	eventRequestType := event.Request.Type
 	if eventRequestType == "LaunchRequest" {
 		return OnLaunch(event.Request)
