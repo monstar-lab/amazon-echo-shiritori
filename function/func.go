@@ -158,6 +158,7 @@ func ResLastCharacter(value string) string {
 	return lastCharacter
 }
 
+//すでに使われたかどうか
 func IsExistWord(word string, useWord string) bool {
 	//DBから取得きた単語を配列に変換
 	oneRes := strings.Split(word, ";")
@@ -177,4 +178,17 @@ func IsExistWord(word string, useWord string) bool {
 //history_detail_v2のanswerに格納するデータフォーマットを整理する
 func MakeDBAnswer(useAnswer string, newAnswer string, answerer string) string {
 	return useAnswer + newAnswer + "," + answerer + ";"
+}
+
+func GetHistoryLastWord(str string) string {
+
+	res := strings.Split(str, ";")
+	word := ""
+	if len(res) <= 2 {
+		word = res[0]
+	} else {
+		word = res[len(res)-2]
+	}
+	lastWord := strings.Split(word, ",")
+	return lastWord[0]
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"strings"
 
@@ -53,7 +54,7 @@ func GetWelcomeResponse() alexa.Response {
 	shouldEndSession := false
 	//DBにゲーム開始情報登録
 	answer := lastWord + ",echo;"
-	historyID = db.PutHistoryDetailData(answer)
+	historyID = db.PutHistoryDetailData(answer, constant.FIRST_GAME_FLAG)
 	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
 }
 
@@ -79,10 +80,13 @@ func ResNotValue() alexa.Response {
 func getShiritoriWord(value string) (alexa.Response, error) {
 	//ユーザー返答した単語をAPIと通信、ひらがなの取得
 	value = function.GetAPIData(value)
+	fmt.Println("返答単語　" + value)
 	//空白文字を削除
 	value = strings.TrimSpace(value)
 	//末尾文字を取得
 	lastCharacter := function.ResLastCharacter(value)
+	fmt.Println("lastCharacter" + lastCharacter)
+	fmt.Println("lastWord " + function.ResLastCharacter(lastWord))
 	//始まり文字を取得
 	firstCharacter := string([]rune(value)[:1])
 
@@ -132,7 +136,7 @@ func getShiritoriWord(value string) (alexa.Response, error) {
 	} else {
 		speechOutput = value + constant.ANSWER_MSG + res
 	}
-	repromptText := res
+	repromptText := "user firstCharacter " + firstCharacter + " lastword " + lastWord
 	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession)), nil
 }
 
@@ -142,6 +146,7 @@ func onStopIntent() (alexa.Response, error) {
 }
 
 func Stop() alexa.Response {
+	db.UpdateHistoryDetailFlag(historyID, constant.STOP_GAME_FLAG)
 	cardTitle := " stop"
 	speechOutput := constant.GAME_STOP_MEESAGE
 	repromptText := constant.GAME_STOP_MEESAGE
@@ -164,12 +169,57 @@ func Cancel() alexa.Response {
 	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
 }
 
+func GetResumeData() []string {
+	getFlagData := make(chan []string)
+	resumeID := make(chan string)
+	getData := make(chan string)
+	go func() {
+		res := db.GetFlagData(constant.STOP_GAME_FLAG)
+		log.Println(res)
+		getFlagData <- res
+	}()
+	getOldData := <-getFlagData
+	go func() {
+		id := db.GetResumeData(getOldData)
+
+		resumeID <- id
+	}()
+	// go func() {
+	// 	res := db.GetResumeData(constant.STOP_GAME_FLAG)
+	// 	log.Println(res)
+	// 	resume <- res
+	// }()
+	id := <-resumeID
+	go func() {
+
+		word := function.GetHistoryLastWord(db.GetHistoryWord(id))
+		fmt.Println(word)
+		getData <- word
+	}()
+
+	resumeWord := <-getData
+
+	return []string{id, resumeWord}
+}
+
 func onResumeIntent() (alexa.Response, error) {
+	//再開したゲームのIDと最後返答した単語を取得
+	resume := GetResumeData()
+	// ゲーム再開した場合今開始したゲームを削除
+	db.DeleteHistory(historyID)
+
+	historyID = resume[0]
+	lastWord = resume[1]
+	return ResumeIntent(function.GetHistoryLastWord(resume[1])), nil
+}
+
+func ResumeIntent(word string) alexa.Response {
+
 	cardTitle := "resume"
-	speechOutput := constant.GAME_RESUME_MEESAGE + lastWord
-	repromptText := constant.GAME_RESUME_MEESAGE + lastWord
+	speechOutput := constant.GAME_RESUME_MEESAGE + word
+	repromptText := constant.GAME_RESUME_MEESAGE + word
 	shouldEndSession := false
-	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession)), nil
+	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
 }
 
 func Handler(event alexa.Request) (alexa.Response, error) {

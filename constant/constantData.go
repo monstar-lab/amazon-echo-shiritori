@@ -10,12 +10,14 @@ const WRONG_END_WORD_MES = "から始まる単語を返答してください。"
 const IS_EXIST_WORD = "単語すでに使われていたので、新しい単語をあげてください"
 const LOSS_GAME = "負けました。"
 const ANSWER_MSG = "ですね、じゃ"
+const USER_RES_WORD = "ユーザー返答単語は"
+const RES_WORD = "返答単語は"
 const API_ACCESS_ID = "dj00aiZpPVJ3M0dHRjdLRDM2biZzPWNvbnN1bWVyc2VjcmV0Jng9MTU-"
 const URL = "http://jlp.yahooapis.jp/FuriganaService/V1/furigana"
 
 //DBに使うデータ定義
 const DB_WORD = "word_v2"
-const DB_USE_WORD_HISTORY = "history_detail"
+const DB_USE_WORD_HISTORY = "history_detail_v2"
 
 //DBにアクセスするさいに必要なキーなど
 const ACCESS_KEY_ID = "AKIAJZOEOAYI7AKKQ7AQ"
@@ -25,9 +27,10 @@ const REGION = "ap-northeast-1"
 const DB_INSERT_TIME_FORMAT = "2006-01-02 15:04:05"
 const DB_ID_FORMAT = "20060102150405"
 
-// const FIRST_GAME_FLAG = 0
-// const AFTER_GAME_FLAG = 1
-// const STOP_GAME_FLAG = 2
+const FIRST_GAME_FLAG = 0
+
+//const AFTER_GAME_FLAG = 1
+const STOP_GAME_FLAG = 2
 
 //const END_GAME_FLAG = 3
 

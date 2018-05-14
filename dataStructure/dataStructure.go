@@ -6,15 +6,18 @@ type Word struct {
 	Word   string `dynamo:"word"`
 }
 
-// type History struct {
-// 	HistoryID string `dynamo:"history_id"`
-// 	Time      string `dynamo:"time"`
-// 	Flag      int    `dynamo:"flag"`
-// }
+type HistoryDB struct {
+	HistoryID string `json:"historyID" dynamodbav:"history_id"`
+}
+
+type History struct {
+	HistoryID string `json:"historyID"`
+}
 
 type HistoryDetail struct {
 	HistoryID string `dynamo:"history_id"`
 	Answer    string `dynamo:"answer"`
+	Flag      int    `dynamo:"flag"`
 }
 
 type WordDB struct {

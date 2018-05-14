@@ -3,7 +3,9 @@ package db
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	"../constant"
 	"../dataStructure"
@@ -135,7 +137,7 @@ func delete_strings(slice []string, s string) []string {
 }
 
 //新規ゲーム登録
-func PutHistoryDetailData(answer string) string {
+func PutHistoryDetailData(answer string, flag int) string {
 	cred := credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
 
 	db := dynamo.New(session.New(), &aws.Config{
@@ -147,7 +149,7 @@ func PutHistoryDetailData(answer string) string {
 	//history idを作成
 	historyID := timeData.GetNowTimeFormat(constant.DB_ID_FORMAT)
 
-	history := dataStructure.HistoryDetail{HistoryID: historyID, Answer: answer}
+	history := dataStructure.HistoryDetail{HistoryID: historyID, Answer: answer, Flag: flag}
 
 	if err := table.Put(history).Run(); err != nil {
 		fmt.Println("err")
@@ -188,6 +190,48 @@ func UpdateHistoryDetailAnswer(answer string, historyID string) {
 		return
 	}
 }
+
+//history_detail_v2の flag変更
+func UpdateHistoryDetailFlag(historyID string, flag int) {
+	sess, err := session.NewSession()
+	if err != nil {
+		panic(err)
+	}
+	db := dynamodb.New(sess, &aws.Config{
+		Credentials: credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, ""),
+		Region:      aws.String(constant.REGION), // constant.REGION等
+	})
+	input := &dynamodb.UpdateItemInput{
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":flag": {
+				N: aws.String(fmt.Sprintf("%v", flag)),
+			},
+		},
+		TableName: aws.String(constant.DB_USE_WORD_HISTORY),
+		Key: map[string]*dynamodb.AttributeValue{
+			"history_id": {
+				S: aws.String(historyID),
+			},
+		},
+		ReturnValues:     aws.String("UPDATED_NEW"),
+		UpdateExpression: aws.String("set flag = :flag"),
+	}
+	_, err = db.UpdateItem(input)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+}
+
+// func GetResumeData() {
+// 	cred := credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
+// 	db := dynamo.New(session.New(), &aws.Config{
+// 		Credentials: cred,
+// 		Region:      aws.String(constant.REGION), // constant.REGION等
+// 	})
+
+// }
 
 func GetGameStartWord(wordID int) string {
 	cred := credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
@@ -230,4 +274,108 @@ func DeleteHistory(historyID string) {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
+}
+
+//中止履歴取得
+func GetFlagData(flag int) []string {
+	cred := credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
+
+	db := dynamodb.New(session.New(), &aws.Config{
+		Credentials: cred,
+		Region:      aws.String(constant.REGION), // constant.REGION等
+	})
+
+	getParams := &dynamodb.ScanInput{
+		TableName: aws.String(constant.DB_USE_WORD_HISTORY),
+
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":flag": {
+				N: aws.String(fmt.Sprintf("%v", flag)),
+			},
+		},
+		ExpressionAttributeNames: map[string]*string{
+			"#ID": aws.String("history_id"), // alias付けれたりする
+
+		},
+		FilterExpression:     aws.String("flag = :flag"),
+		ProjectionExpression: aws.String("#ID"), // 取得カラム
+	}
+
+	getItem, getErr := db.Scan(getParams)
+
+	if getErr != nil {
+		panic(getErr)
+	}
+
+	res := []string{}
+	historys := make([]*dataStructure.HistoryDB, 0)
+	err := dynamodbattribute.UnmarshalListOfMaps(getItem.Items, &historys)
+	if err != nil {
+		panic(fmt.Sprintf("failed to unmarshal Dynamodb Scan Items, %v", err))
+	}
+
+	bytes, _ := json.Marshal(historys)
+	var data []*dataStructure.History
+	unMarshaErr := json.Unmarshal(bytes, &data)
+	if unMarshaErr != nil {
+		fmt.Println("error:", unMarshaErr)
+	}
+	for _, history := range data {
+		res = append(res, history.HistoryID)
+	}
+	return res
+	// if len(res) == 1 {
+	// 	return res[0]
+	// } else {
+	// 	return CheckTime(res)
+	// }
+}
+
+func GetResumeData(res []string) string {
+	if len(res) == 1 {
+		return res[0]
+	}
+	return CheckTime(res)
+
+}
+
+func CheckTime(str []string) string {
+	loc, _ := time.LoadLocation("Asia/Tokyo")
+	var year int
+	var month int
+	var day int
+	var hours int
+	var minutes int
+	var seconds int
+	var max time.Time
+	var maxIndex int
+	var compareTime time.Time
+
+	for i, t := range str {
+		fmt.Println(t)
+		year, _ = strconv.Atoi(string([]rune(t)[:4]))
+		month, _ = strconv.Atoi(string([]rune(t)[4:6]))
+		day, _ = strconv.Atoi(string([]rune(t)[6:8]))
+		hours, _ = strconv.Atoi(string([]rune(t)[8:10]))
+		minutes, _ = strconv.Atoi(string([]rune(t)[10:12]))
+		seconds, _ = strconv.Atoi(string([]rune(t)[12:14]))
+
+		compareTime = time.Date(year, time.Month(month), day, hours, minutes, seconds, 0, loc)
+		if i == 0 {
+			max = compareTime
+		} else {
+			if compareTime.After(max) {
+				max = compareTime
+				maxIndex = i
+			}
+		}
+	}
+
+	for i, id := range str {
+		if i != maxIndex {
+			DeleteHistory(id)
+		}
+	}
+
+	return max.Format(constant.DB_ID_FORMAT)
 }
