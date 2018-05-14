@@ -224,7 +224,9 @@ func Handler(event alexa.Request) (alexa.Response, error) {
 	if !event.Session.New {
 		oldGameID := db.GetFlagData(constant.FIRST_GAME_FLAG)
 		for _, id := range oldGameID {
-			db.DeleteHistory(id)
+			if id != historyID {
+				db.DeleteHistory(id)
+			}
 		}
 	}
 	eventRequestType := event.Request.Type
