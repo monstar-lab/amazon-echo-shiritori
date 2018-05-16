@@ -245,6 +245,8 @@ func Handler(event alexa.Request) (alexa.Response, error) {
 			return OnLaunch(event.Request)
 		}
 		return OnIntent(event.Request)
+	} else if eventRequestType == "SessionEndedRequest" {
+
 	}
 	return alexa.Response{}, ErrInvalidIntent
 }
