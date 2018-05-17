@@ -9,7 +9,7 @@
 ### サンプルを動かす手順
 - git clone (ブランチはgoSample)
 
-- AWSに関数作成
+- AWSに関数作成
 	- `一から関数を作成`  
 		<img src="https://github.com/monstar-lab/amazon-echo-shiritori/wiki/images/AWS/aws1.png" width= "400px"/>
 
@@ -27,7 +27,7 @@
 
 
 - Alexa 開発コンソールでスキル作成
-	- `スキル名とスキル地域を選択後 -> 次へ`  
+	- `スキル名とスキル地域を選択後 -> 次へ`  
 		<img src="https://github.com/monstar-lab/amazon-echo-shiritori/wiki/images/Alexa/Alexa1.png" width= "400px"/>
 
 	- `カスタムスキルを作成`    
