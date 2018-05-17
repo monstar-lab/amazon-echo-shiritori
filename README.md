@@ -47,7 +47,9 @@
 		<img src="https://github.com/monstar-lab/amazon-echo-shiritori/wiki/images/Alexa/Alexa6.png" width= "400px"/>
 
 	- `モデル保存して、ビルド忘れずに`
-	- `テスト`
+	- `スキルテスト結果画面`  
+		<img src="https://github.com/monstar-lab/amazon-echo-shiritori/wiki/images/Alexa/Alexa7.png" width= "400px"/>
+
 
 
 
