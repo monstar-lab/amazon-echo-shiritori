@@ -36,14 +36,18 @@
 	- `スキルの呼び出す名を設定（既存のスキル名と設定すると別のスキルが起動してしまう可能性がある）`  
 		<img src="https://github.com/monstar-lab/amazon-echo-shiritori/wiki/images/Alexa/Alexa3.png" width= "400px"/>
 
-	- `カスタムインテントを作成`
+	- `カスタムインテントを作成`  
 		<img src="https://github.com/monstar-lab/amazon-echo-shiritori/wiki/images/Alexa/Alexa4.png" width= "400px"/>
 
-	- `サンプル発話を追加`
-	- `カスタムスロットを設定`
-	- `インテントにスロットを追加`
+	
+	- `カスタムスロットを作成`  
+		<img src="https://github.com/monstar-lab/amazon-echo-shiritori/wiki/images/Alexa/Alexa5.png" width= "400px"/>
+
+	- `インテントに追加してからサンプル発話を追加`  
+		<img src="https://github.com/monstar-lab/amazon-echo-shiritori/wiki/images/Alexa/Alexa6.png" width= "400px"/>
+
 	- `モデル保存して、ビルド忘れずに`
-	-
+	- `テスト`
 
 
 
