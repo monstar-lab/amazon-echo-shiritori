@@ -184,11 +184,6 @@ func GetResumeData() []string {
 
 		resumeID <- id
 	}()
-	// go func() {
-	// 	res := db.GetResumeData(constant.STOP_GAME_FLAG)
-	// 	log.Println(res)
-	// 	resume <- res
-	// }()
 	id := <-resumeID
 	go func() {
 

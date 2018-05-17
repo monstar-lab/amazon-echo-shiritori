@@ -224,15 +224,6 @@ func UpdateHistoryDetailFlag(historyID string, flag int) {
 	}
 }
 
-// func GetResumeData() {
-// 	cred := credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
-// 	db := dynamo.New(session.New(), &aws.Config{
-// 		Credentials: cred,
-// 		Region:      aws.String(constant.REGION), // constant.REGION等
-// 	})
-
-// }
-
 func GetGameStartWord(wordID int) string {
 	cred := credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
 	db := dynamo.New(session.New(), &aws.Config{
@@ -270,13 +261,12 @@ func DeleteHistory(historyID string) {
 	}
 
 	_, err = db.DeleteItem(params)
-	//fmt.Println(res)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
 }
 
-//中止履歴取得
+//フラグでデータ検索
 func GetFlagData(flag int) []string {
 	cred := credentials.NewStaticCredentials(constant.ACCESS_KEY_ID, constant.SECRET_ACCESS_KEY, "") // 最後の引数は[セッショントークン]
 
@@ -324,13 +314,9 @@ func GetFlagData(flag int) []string {
 		res = append(res, history.HistoryID)
 	}
 	return res
-	// if len(res) == 1 {
-	// 	return res[0]
-	// } else {
-	// 	return CheckTime(res)
-	// }
 }
 
+//中止履歴取得
 func GetResumeData(res []string) string {
 	if len(res) == 1 {
 		return res[0]
@@ -370,12 +356,10 @@ func CheckTime(str []string) string {
 			}
 		}
 	}
-
 	for i, id := range str {
 		if i != maxIndex {
 			DeleteHistory(id)
 		}
 	}
-
 	return max.Format(constant.DB_ID_FORMAT)
 }
