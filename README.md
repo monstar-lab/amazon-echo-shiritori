@@ -24,3 +24,7 @@
 		- カウントダウン  
 		- 自動終了知らせ
 		- 間違い知らせ
+
+- ライセンス
+	- ヤフーの漢字をひらがなに変換するAPIを使用しています。[URL](https://developer.yahoo.co.jp/webapi/jlp/jim/v1/conversion.html)
+	- [ライセンス詳細](https://developer.yahoo.co.jp/appendix/rate.html)
