@@ -175,42 +175,57 @@ func GetResumeData() []string {
 	getData := make(chan string)
 	go func() {
 		res := db.GetFlagData(constant.STOP_GAME_FLAG)
+		log.Println("resdata")
 		log.Println(res)
 		getFlagData <- res
 	}()
 	getOldData := <-getFlagData
-	go func() {
-		id := db.GetResumeData(getOldData)
+	if len(getOldData) != 0 {
+		go func() {
+			id := db.GetResumeData(getOldData)
 
-		resumeID <- id
-	}()
-	id := <-resumeID
-	go func() {
+			resumeID <- id
+		}()
+		id := <-resumeID
+		go func() {
 
-		word := function.GetHistoryLastWord(db.GetHistoryWord(id))
-		fmt.Println(word)
-		getData <- word
-	}()
-	resumeWord := <-getData
-	return []string{id, resumeWord}
+			word := function.GetHistoryLastWord(db.GetHistoryWord(id))
+			fmt.Println(word)
+			getData <- word
+		}()
+		resumeWord := <-getData
+		return []string{id, resumeWord}
+	}
+	return []string{"", ""}
 }
 
 func onResumeIntent() (alexa.Response, error) {
 	//再開したゲームのIDと最後返答した単語を取得
 	resume := GetResumeData()
+	if resume[0] == "" {
+		return ResumeIntent(""), nil
+	}
 	// ゲーム再開した場合今開始したゲームを削除
 	db.DeleteHistory(historyID)
 
 	historyID = resume[0]
 	lastWord = resume[1]
 	return ResumeIntent(function.GetHistoryLastWord(resume[1])), nil
+
 }
 
 func ResumeIntent(word string) alexa.Response {
 
 	cardTitle := "resume"
+
 	speechOutput := constant.GAME_RESUME_MEESAGE + word
 	repromptText := constant.GAME_RESUME_MEESAGE + word
+
+	if word == "" {
+		speechOutput = constant.NO_RESUME_DATA
+		repromptText = constant.NO_RESUME_DATA
+	}
+	fmt.Println("再開　" + speechOutput)
 	shouldEndSession := false
 	return alexa.BuildResponse(alexa.BuildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
 }

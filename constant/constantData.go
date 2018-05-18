@@ -4,6 +4,7 @@ const GAME_START_MESSAGE = "しりとりスキルへようこそ、ではゲー�
 const GAME_STOP_MEESAGE = "しりとりゲームスキルを中止します。"
 const GAME_CANCEL_MEESAGE = "しりとりゲームスキルを終了します。"
 const GAME_RESUME_MEESAGE = "ゲームを再開します。"
+const NO_RESUME_DATA = "再開するデータはありません"
 const LOSS_N_MESSAGE = "語尾がんで終わったので、私の勝ちです。"
 const WRONG_END_MES = "語尾が違います。"
 const WRONG_END_WORD_MES = "から始まる単語を返答してください。"
